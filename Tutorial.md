@@ -85,6 +85,7 @@ To understand why we need to create an Image, it's important to understand the A
 When you launch an instance, you select an image.  This image is copied onto the volume that is attached to the instance and then the instance is booted up.  The same image can be used to launch multiple volumes.
 
 <img src="images/ImagesInstances.PNG" alt="Images And Instances" width="750">
+<img src="images/VolumesSnapshots.PNG" alt="Images And Instances" width="750">
 
 You don't have to create your own image - Amazon has many images with different operating systems already prepared.  However, if you use one of these, you'll have to install any extra software every time you create an instance.  Instead, we'll start with one of the base Amazon images, install some software, and then use it to create our own image.
 
