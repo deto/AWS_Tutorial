@@ -313,9 +313,9 @@ Now, let's assume we have the reads (stored in a .fastq file) on our computer.  
 ```
 # These files have been trimmed down to only 250k reads for the demo
 
-scp -i "amazonkey.pem" SRR1721276_250k_1.fastq.gz ubuntu@ec2-54-193-56-170.us-west-1.compute.amazonaws.com:~
+scp -i "~/AmazonKeys/AWSKey.pem" SRR1721276_250k_1.fastq.gz ubuntu@ec2-54-193-56-170.us-west-1.compute.amazonaws.com:~
 
-scp -i "amazonkey.pem" SRR1721276_250k_1.fastq.gz ubuntu@ec2-54-193-56-170.us-west-1.compute.amazonaws.com:~
+scp -i "~/AmazonKeys/AWSKey.pem" SRR1721276_250k_1.fastq.gz ubuntu@ec2-54-193-56-170.us-west-1.compute.amazonaws.com:~
 ```
 
 And now we can run our alignment:
@@ -350,7 +350,7 @@ Note here the `nohup` and the `&` are both outside the file.
 Later, you can start your instance back up, log into it, and download the results - again using `scp` with something like:
 
 ```
-scp -i "amazonkey.pem" ubuntu@ec2-54-193-56-170.us-west-1.compute.amazonaws.com:~/alignedOut/outputfile.sam .
+scp -i "~/AmazonKeys/AWSKey.pem" ubuntu@ec2-54-193-56-170.us-west-1.compute.amazonaws.com:~/alignedOut/outputfile.sam .
 ```
 
 
@@ -369,7 +369,13 @@ aws s3 cp s3::/references/hg38_STAR hg38_STAR --recursive
 ```
 There's no charge for data transfers within the same region, though you would still pay for the storage of the reference (about half the cost per GB of volume storage).
 
-## AWS Batch
+## AWS ParallelCluster
+
+Once you're comfortable with launching your own instances, you may want to check out [AWS ParallelCluster](https://aws.amazon.com/blogs/opensource/aws-parallelcluster/). It's a relatively new (Released Nov 2018) service that let's you create a cluster of compute nodes in AWS.
+
+- Submit jobs using `qsub` like you would on a local cluster
+- AWS scales the number of active instances automatically
+- All instances can connect to the same file system
 
 ## Raising utilization limit for instance
 
@@ -381,4 +387,12 @@ Create a support case and select 'Service limit increase'.  Here select the Regi
 
 ## Spot Instances
 
-Spot instances are available for much cheaper (often around 1/3 the cost, [pricing here](https://aws.amazon.com/ec2/spot/pricing/)) but they come with two caveats.  First, the price of spot instances can increase with demand.  When you request spot instances you specify what you are willing to pay and if the price goes above that, then your instances will be halted.  However, if you just bid the current on-demand price (the default if you leave the bid price blank), then this is not likely to happen.  The second caveat is that you can't Stop and Start a spot instance.  With on-demand instances you can 'Stop' the instance, essentially pausing it indefinitely.  You won't be charged for compute costs while it is stopped and then you can start it again at a later time.  With a spot instance, once you stop it you can't start it again, so you must download the results of a computation before stopping the instance.  Alternately, you can attach an extra storage volume to the instance and save your results on that volume, then mount that with another instance later to get a similar kind of behavior - just with a bit more work.
+Spot instances are available for much cheaper (often around 1/3 the cost, [pricing here](https://aws.amazon.com/ec2/spot/pricing/)) but they come with two caveats.
+
+**1. the price of spot instances can increase with demand**
+
+When you request spot instances you specify what you are willing to pay and if the price goes above that, then your instances will be halted.  However, if you just bid the current on-demand price (the default if you leave the bid price blank), then this is not likely to happen.
+
+**2. You can't Start a spot instance once you Stop it**
+
+With on-demand instances you can 'Stop' the instance, essentially pausing it indefinitely.  You won't be charged for compute costs while it is stopped and then you can start it again at a later time.  With a spot instance, once you stop it you can't start it again, so you must download the results of a computation before stopping the instance.  Alternately, you can attach an extra storage volume to the instance and save your results on that volume, then mount that with another instance later to get a similar kind of behavior - just with a bit more work.
